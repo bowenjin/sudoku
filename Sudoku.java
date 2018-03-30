@@ -64,8 +64,10 @@ class Sudoku{
     }
   }
   public void solve(){
+    long startTime = System.currentTimeMillis();
     if(solveNext(0, 0)){
       System.out.println("==========SUDOKU SOLVED==========");
+      System.out.println("Time Taken: " + (System.currentTimeMillis() - startTime) + " ms"); 
     }else{
       System.out.println("==========NO SOLUTION==========");
     }
@@ -82,13 +84,7 @@ class Sudoku{
 
   private Pair findNext(int r, int c){
     for(int i = r; i < board.length; i++){
-      int j;
-      if(i == r){
-        j = c;
-      }else{
-        j = 0; 
-      }
-      for(;j < board[i].length; j++){
+      for(int j = (i == r ? c : 0); j < board[i].length; j++){
         if(board[i][j] == 0){
           return new Pair(i, j);
         }
@@ -103,34 +99,34 @@ class Sudoku{
     }
     r = nextLoc.r;
     c = nextLoc.c;
+  tryNums:
     for(int n = 1; n <= 9; n++){
       boolean checkRow = true, checkCol = true, checkSquare = true;
       for(int i = 0; i < board.length; i++){
         if(board[i][c] == n){
-          checkRow = false;
+          continue tryNums;
         }
       }
       for(int j = 0; j < board[r].length; j++){
         if(board[r][j] == n){
-          checkCol = false;
+          continue tryNums;
         }
       }
-      for(int i = r / 3 * 3; i < r / 3 * 3 + 3; i++){
-        for(int j = c / 3 * 3; j < c / 3 * 3 + 3; j++){
+      Pair squareTopLeft = new Pair(r / 3 * 3, c / 3 * 3); 
+      for(int i = squareTopLeft.r; i < squareTopLeft.r + 3; i++){
+        for(int j = squareTopLeft.c; j < squareTopLeft.c + 3; j++){
           if(board[i][j] == n){
-            checkSquare = false;
+            continue tryNums;
           }   
         }
       }
       
-      if(checkRow && checkCol && checkSquare){
-        board[r][c] = n;
-        if(solveNext(r,c)){
-          return true;
-        }else{
-          board[r][c] = 0;
-        }
-      }   
+      board[r][c] = n;
+      if(solveNext(r,c)){
+        return true;
+      }else{
+        board[r][c] = 0;
+      }
     }
     return false; 
   }
